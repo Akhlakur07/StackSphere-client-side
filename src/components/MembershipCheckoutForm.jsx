@@ -1,71 +1,103 @@
 import React, { useState } from 'react';
-// eslint-disable-next-line no-unused-vars
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { toast } from 'react-toastify';
 
 const API_BASE = "http://localhost:3000";
 
 const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
-//   const stripe = useStripe();
-//   const elements = useElements();
+  const stripe = useStripe();
+  const elements = useElements();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
-    // Block native form submission.
     event.preventDefault();
     setProcessing(true);
     setError('');
+
+    if (!stripe || !elements) {
+      setError('Stripe has not loaded yet. Please try again.');
+      setProcessing(false);
+      return;
+    }
+
+    const card = elements.getElement(CardElement);
+
+    if (card == null) {
+      setError('Card element not found.');
+      setProcessing(false);
+      return;
+    }
 
     try {
       // Create payment intent on the server
       const paymentIntentResponse = await fetch(`${API_BASE}/create-payment-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amount })
+        body: JSON.stringify({ 
+          amount: amount,
+          userEmail: user?.email 
+        })
       });
 
       if (!paymentIntentResponse.ok) {
-        const errorText = await paymentIntentResponse.text();
-        throw new Error(errorText || 'Payment service unavailable');
+        const errorData = await paymentIntentResponse.json();
+        throw new Error(errorData.error || 'Failed to create payment intent');
       }
 
-      const paymentIntentData = await paymentIntentResponse.json();
+      const { clientSecret, paymentIntentId } = await paymentIntentResponse.json();
       
-      console.log('Payment intent created:', paymentIntentData);
+      console.log('Payment intent created:', paymentIntentId);
 
-      // For mock payments, we don't need to process with Stripe
-      // Just save the payment directly
-      if (paymentIntentData.mock) {
+      // Use card Element with Stripe.js APIs
+      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            name: user?.displayName || 'User',
+            email: user?.email,
+          },
+        },
+      });
+
+      if (stripeError) {
+        console.error('Stripe confirmation error:', stripeError);
         
-        // Simulate payment processing delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Check if it's a fraud-related error
+        if (stripeError.code === 'card_declined' && stripeError.decline_code === 'fraudulent') {
+          throw new Error('This card has been declined due to suspected fraudulent activity. Please use a different card.');
+        }
         
-        // Save mock payment
+        throw new Error(stripeError.message);
+      }
+
+      if (paymentIntent.status === 'succeeded') {
+        console.log('Payment succeeded:', paymentIntent.id);
+        
+        // Save payment to database
         const paymentResponse = await fetch(`${API_BASE}/payments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: user?.email,
             amount: amount,
-            transactionId: "mock_txn_" + Date.now(),
+            transactionId: paymentIntent.id,
             membershipType: 'premium'
           })
         });
 
         if (!paymentResponse.ok) {
-          throw new Error('Failed to save payment');
+          throw new Error('Failed to save payment record');
         }
 
         const paymentResult = await paymentResponse.json();
-        console.log(paymentResult);
+        console.log('Payment saved:', paymentResult);
         
-        toast.success('Payment successful! Your membership has been upgraded to Premium.');
+        toast.success('🎉 Payment successful! Your membership has been upgraded to Premium.');
         onSuccess();
-        return;
+      } else {
+        throw new Error(`Payment failed with status: ${paymentIntent.status}`);
       }
-
-
     } catch (err) {
       console.error('Payment error:', err);
       setError(err.message);
@@ -102,7 +134,10 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
               <span className="text-gray-600">Amount</span>
               <span className="text-2xl font-bold text-gray-900">${amount}</span>
             </div>
-            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-xs text-green-700 text-center">
+                💳 <strong>Secure Payment</strong> - Powered by Stripe
+              </p>
             </div>
           </div>
         </div>
@@ -113,7 +148,7 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Card Details
             </label>
-            <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50">
+            <div className="border border-gray-200 rounded-2xl p-4 bg-white">
               <CardElement
                 options={{
                   style: {
@@ -132,20 +167,18 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
                 }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Enter any card details
-            </p>
           </div>
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-              <p className="text-red-600 text-sm">{error}</p>
+              <p className="text-red-600 text-sm font-semibold">Payment Error:</p>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
             </div>
           )}
 
           {/* Features Included */}
           <div className="bg-gray-50 rounded-2xl p-4">
-            <h4 className="font-semibold text-gray-900 mb-3">What you get:</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Premium Features:</h4>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -157,13 +190,13 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                Advanced analytics
+                Advanced analytics dashboard
               </li>
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                Priority support
+                Priority customer support
               </li>
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -177,7 +210,7 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={processing}
+            disabled={!stripe || processing}
             className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl shadow-lg shadow-purple-500/25 transform hover:scale-105 transition-all duration-300"
           >
             {processing ? (
@@ -189,9 +222,13 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
                 Processing Payment...
               </div>
             ) : (
-              `Complete Payment - $${amount}`
+              `Pay $${amount}`
             )}
           </button>
+
+          <p className="text-xs text-gray-500 text-center">
+            💳 Secure payment powered by Stripe. Your card details are protected by advanced fraud detection.
+          </p>
         </form>
       </div>
     </div>
