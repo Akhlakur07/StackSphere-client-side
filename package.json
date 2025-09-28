@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^4.0.2",
+    "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/vite": "^4.1.13",
     "firebase": "^12.3.0",
     "framer-motion": "^12.23.22",
@@ -20,6 +22,7 @@
     "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
+    "stripe": "^18.5.0",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
