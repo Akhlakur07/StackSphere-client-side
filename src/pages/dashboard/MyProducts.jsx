@@ -1,58 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router';
+import { AuthContext } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+
+const API_BASE = "http://localhost:3000";
 
 const MyProducts = () => {
+  const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data - replace with actual API call
   useEffect(() => {
-    const mockProducts = [
-      {
-        id: 1,
-        name: 'AI Code Assistant',
-        votes: 45,
-        status: 'accepted',
-        createdAt: '2024-01-15',
-        image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: 2,
-        name: 'React Component Library',
-        votes: 23,
-        status: 'pending',
-        createdAt: '2024-01-16',
-        image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: 3,
-        name: 'Cloud Deployment Tool',
-        votes: 67,
-        status: 'rejected',
-        createdAt: '2024-01-14',
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+    if (user?.email) {
+      fetchUserProducts();
+    }
+  }, [user?.email]);
+
+  const fetchUserProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/products/user/${user.email}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      } else {
+        toast.error("Failed to load products");
       }
-    ];
-
-    setTimeout(() => {
-      setProducts(mockProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleDelete = (productId) => {
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'accepted': return 'bg-green-100 text-green-800 border border-green-200';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+      case 'rejected': return 'bg-red-100 text-red-800 border border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  };
+
+  const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(prev => prev.filter(p => p.id !== productId));
-      // TODO: Add actual delete API call
+      try {
+        // TODO: Add DELETE endpoint to backend
+        // await fetch(`${API_BASE}/products/${productId}`, { method: 'DELETE' });
+        
+        // For now, just remove from local state
+        setProducts(prev => prev.filter(p => p._id !== productId));
+        toast.success('Product deleted successfully');
+      // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        toast.error('Failed to delete product');
+      }
     }
   };
 
@@ -116,7 +118,7 @@ const MyProducts = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {products.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-200">
+                    <tr key={product._id} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <img
@@ -126,6 +128,9 @@ const MyProducts = () => {
                           />
                           <div>
                             <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                            <div className="text-xs text-gray-500 truncate max-w-xs">
+                              {product.description.substring(0, 50)}...
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -145,7 +150,7 @@ const MyProducts = () => {
                           Update
                         </button>
                         <button 
-                          onClick={() => handleDelete(product.id)}
+                          onClick={() => handleDelete(product._id)}
                           className="text-red-600 hover:text-red-900 transition-colors duration-200"
                         >
                           Delete

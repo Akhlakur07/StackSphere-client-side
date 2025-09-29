@@ -5,8 +5,8 @@ import Register from "../pages/Register";
 import Login from "../pages/Login";
 import DashboardLayout from "../pages/dashboard/DashboardLayout";
 import MyProfile from "../pages/dashboard/MyProfile";
-import AddProduct from "../pages/dashboard/AddProdect";
 import MyProducts from "../pages/dashboard/MyProducts";
+import AddProduct from "../pages/dashboard/AddProduct";
 
 const router = createBrowserRouter([
   {
