@@ -7,6 +7,7 @@ import DashboardLayout from "../pages/dashboard/DashboardLayout";
 import MyProfile from "../pages/dashboard/MyProfile";
 import MyProducts from "../pages/dashboard/MyProducts";
 import AddProduct from "../pages/dashboard/AddProduct";
+import UpdateProduct from "../pages/dashboard/UpdateProduct";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "my-products",
         Component: MyProducts,
+      },
+      {
+        path: "update-product/:id",
+        Component: UpdateProduct,
       },
     ],
   },
