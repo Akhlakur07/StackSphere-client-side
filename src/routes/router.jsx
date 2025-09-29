@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import Root from "../pages/Root";
 import Home from "../pages/Home";
 import Register from "../pages/Register";
@@ -8,6 +8,11 @@ import MyProfile from "../pages/dashboard/MyProfile";
 import MyProducts from "../pages/dashboard/MyProducts";
 import AddProduct from "../pages/dashboard/AddProduct";
 import UpdateProduct from "../pages/dashboard/UpdateProduct";
+import UserPrivateRoute from "../private/UserPrivateRoute";
+import ModeratorPrivateRoute from "../private/ModeratorPrivateRoute";
+import ModeratorDashboardLayout from "../pages/moderator/ModeratorDashboardLayout";
+import ProductReviewQueue from "../pages/moderator/ProductReviewQueue";
+import ReportedContents from "../pages/moderator/ReportedContents";
 
 const router = createBrowserRouter([
   {
@@ -30,7 +35,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    Component: DashboardLayout,
+    element: (
+      <UserPrivateRoute>
+        <DashboardLayout />
+      </UserPrivateRoute>
+    ),
     children: [
       {
         index: true,
@@ -47,6 +56,28 @@ const router = createBrowserRouter([
       {
         path: "update-product/:id",
         Component: UpdateProduct,
+      },
+    ],
+  },
+  {
+    path: "/moderator",
+    element: (
+      <ModeratorPrivateRoute>
+        <ModeratorDashboardLayout />
+      </ModeratorPrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/moderator/review-queue" replace />,
+      },
+      {
+        path: "review-queue",
+        Component: ProductReviewQueue,
+      },
+      {
+        path: "reported-contents",
+        Component: ReportedContents,
       },
     ],
   },

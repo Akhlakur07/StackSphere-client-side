@@ -2,11 +2,16 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 
+const API_BASE = "http://localhost:3000";
+
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  // eslint-disable-next-line no-unused-vars
+  const [roleLoading, setRoleLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -17,10 +22,54 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user?.email) {
+        try {
+          const response = await fetch(`${API_BASE}/user-profile/${user.email}`);
+          if (response.ok) {
+            const userData = await response.json();
+            setUserRole(userData.role);
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        } finally {
+          setRoleLoading(false);
+        }
+      } else {
+        setRoleLoading(false);
+      }
+    };
+
+    fetchUserRole();
+  }, [user?.email]);
+
   const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
   const toggleMobileMenu = () => setMobileMenuOpen((prevState) => !prevState);
 
   const isActiveLink = (path) => location.pathname === path;
+
+  // Get dashboard URL based on user role
+  const getDashboardUrl = () => {
+    if (userRole === "moderator" || userRole === "admin") {
+      return "/moderator";
+    }
+    return "/dashboard";
+  };
+
+  // Get dashboard label based on user role
+  const getDashboardLabel = () => {
+    if (userRole === "moderator") return "Moderator Dashboard";
+    if (userRole === "admin") return "Admin Dashboard";
+    return "Dashboard";
+  };
+
+  // Get dashboard icon based on user role
+  const getDashboardIcon = () => {
+    if (userRole === "moderator") return "🛠️";
+    if (userRole === "admin") return "⚡";
+    return "📊";
+  };
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -116,6 +165,29 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {/* Role Badge */}
+                {userRole && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                      isScrolled
+                        ? userRole === "moderator"
+                          ? "bg-orange-100 text-orange-800 border-orange-200"
+                          : userRole === "admin"
+                          ? "bg-red-100 text-red-800 border-red-200"
+                          : "bg-purple-100 text-purple-800 border-purple-200"
+                        : userRole === "moderator"
+                        ? "bg-orange-500/20 text-orange-200 border-orange-400/30"
+                        : userRole === "admin"
+                        ? "bg-red-500/20 text-red-200 border-red-400/30"
+                        : "bg-white/20 text-white border-white/30"
+                    }`}
+                  >
+                    {userRole === "moderator" && "🛠️ Moderator"}
+                    {userRole === "admin" && "⚡ Admin"}
+                    {userRole === "user" && "👤 User"}
+                  </span>
+                )}
+
                 {/* User Profile Picture with Enhanced Dropdown */}
                 <div className="relative">
                   <button
@@ -131,8 +203,24 @@ const Navbar = () => {
                         alt="User Avatar"
                         className="w-11 h-11 rounded-full border-2 border-white/80 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:border-purple-300 group-hover:shadow-purple-500/25"
                       />
-                      {/* Online indicator */}
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse"></div>
+                      {/* Role indicator */}
+                      <div
+                        className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${
+                          userRole === "moderator"
+                            ? "bg-orange-400"
+                            : userRole === "admin"
+                            ? "bg-red-400"
+                            : "bg-green-400"
+                        }`}
+                      >
+                        <span className="text-xs text-white">
+                          {userRole === "moderator"
+                            ? "🛠️"
+                            : userRole === "admin"
+                            ? "⚡"
+                            : "👤"}
+                        </span>
+                      </div>
                     </div>
                     <div
                       className={`text-left transition-colors duration-300 ${
@@ -141,6 +229,9 @@ const Navbar = () => {
                     >
                       <p className="font-semibold text-sm">
                         {user?.displayName || "User"}
+                      </p>
+                      <p className="text-xs opacity-70">
+                        {getDashboardLabel()}
                       </p>
                     </div>
                     <svg
@@ -181,17 +272,40 @@ const Navbar = () => {
                             <p className="text-sm text-gray-600 truncate">
                               {user?.email}
                             </p>
+                            <div className="flex items-center space-x-1 mt-1">
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${
+                                  userRole === "moderator"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : userRole === "admin"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-purple-100 text-purple-800"
+                                }`}
+                              >
+                                {userRole === "moderator" && "🛠️ Moderator"}
+                                {userRole === "admin" && "⚡ Admin"}
+                                {userRole === "user" && "👤 User"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       <div className="p-2">
                         <Link
-                          to="/dashboard"
-                          className="block text-gray-700 hover:text-purple-600 py-2 px-4 rounded-md hover:bg-purple-50 transition-all duration-200"
+                          to={getDashboardUrl()}
+                          className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 group"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          Dashboard
+                          <span className="text-lg">{getDashboardIcon()}</span>
+                          <div>
+                            <span className="font-medium">{getDashboardLabel()}</span>
+                            <p className="text-xs text-gray-500">
+                              {userRole === "moderator" && "Manage product reviews"}
+                              {userRole === "admin" && "Administrator panel"}
+                              {userRole === "user" && "Your products & profile"}
+                            </p>
+                          </div>
                         </Link>
 
                         <Link
@@ -325,6 +439,25 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="pt-2 border-t border-white/20">
+                  {/* Role Badge in Mobile */}
+                  {userRole && (
+                    <div className="px-4 py-2 mb-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          userRole === "moderator"
+                            ? "bg-orange-500/20 text-orange-200 border border-orange-400/30"
+                            : userRole === "admin"
+                            ? "bg-red-500/20 text-red-200 border border-red-400/30"
+                            : "bg-white/20 text-white border border-white/30"
+                        }`}
+                      >
+                        {userRole === "moderator" && "🛠️ Moderator"}
+                        {userRole === "admin" && "⚡ Admin"}
+                        {userRole === "user" && "👤 User"}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-center space-x-3 px-4 py-3">
                     <img
                       src={
@@ -338,9 +471,19 @@ const Navbar = () => {
                       <p className="font-semibold text-white">
                         {user?.displayName || "User"}
                       </p>
-                      <p className="text-sm text-white/70">View Profile</p>
+                      <p className="text-sm text-white/70">{getDashboardLabel()}</p>
                     </div>
                   </div>
+                  
+                  <Link
+                    to={getDashboardUrl()}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+                  >
+                    <span className="text-lg">{getDashboardIcon()}</span>
+                    <span>Go to {getDashboardLabel()}</span>
+                  </Link>
+                  
                   <button
                     onClick={logOut}
                     className="w-full px-4 py-3 text-left text-red-300 hover:bg-white/10 rounded-xl transition-all duration-300"
