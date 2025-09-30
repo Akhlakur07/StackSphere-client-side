@@ -3,6 +3,7 @@ import Banner from '../components/Banner';
 import FeaturedProducts from '../components/FeaturedProducts';
 import TrendingProducts from '../components/TrendingProducts';
 import CommunitySpotlight from '../components/CommunitySpotlight';
+import InnovationHub from '../components/InnovationHub';
 
 const Home = () => {
     return (
@@ -11,6 +12,7 @@ const Home = () => {
             <FeaturedProducts></FeaturedProducts>
             <TrendingProducts></TrendingProducts>
             <CommunitySpotlight></CommunitySpotlight>
+            <InnovationHub></InnovationHub>
         </div>
     );
 };
