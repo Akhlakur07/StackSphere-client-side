@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Link, useLocation, Outlet } from 'react-router';
-import { AuthContext } from '../../context/AuthContext';
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useLocation, Outlet } from "react-router";
+import { AuthContext } from "../../context/AuthContext";
 
 const API_BASE = "http://localhost:3000";
 
@@ -21,14 +21,18 @@ const DashboardLayout = () => {
   const fetchUserData = async () => {
     try {
       // Fetch user profile
-      const profileResponse = await fetch(`${API_BASE}/user-profile/${user.email}`);
+      const profileResponse = await fetch(
+        `${API_BASE}/user-profile/${user.email}`
+      );
       if (profileResponse.ok) {
         const profileData = await profileResponse.json();
         setUserProfile(profileData);
       }
 
       // Fetch user's product count
-      const productsResponse = await fetch(`${API_BASE}/products/user/${user.email}`);
+      const productsResponse = await fetch(
+        `${API_BASE}/products/user/${user.email}`
+      );
       if (productsResponse.ok) {
         const productsData = await productsResponse.json();
         setUserProductCount(productsData.length);
@@ -41,27 +45,27 @@ const DashboardLayout = () => {
   };
 
   const menuItems = [
-    { 
-      path: '/dashboard', 
-      label: 'My Profile', 
-      icon: '👤',
-      description: 'Manage your account'
+    {
+      path: "/dashboard",
+      label: "My Profile",
+      icon: "👤",
+      description: "Manage your account",
     },
-    { 
-      path: '/dashboard/add-product', 
-      label: 'Add Product', 
-      icon: '➕',
-      description: 'Submit new product',
+    {
+      path: "/dashboard/add-product",
+      label: "Add Product",
+      icon: "➕",
+      description: "Submit new product",
       badge: userProductCount,
-      showBadge: true
+      showBadge: true,
     },
-    { 
-      path: '/dashboard/my-products', 
-      label: 'My Products', 
-      icon: '📦',
-      description: 'View your submissions',
+    {
+      path: "/dashboard/my-products",
+      label: "My Products",
+      icon: "📦",
+      description: "View your submissions",
       badge: userProductCount,
-      showBadge: true
+      showBadge: true,
     },
   ];
 
@@ -73,17 +77,19 @@ const DashboardLayout = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30">
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-xl shadow-2xl shadow-purple-500/10 border-r border-purple-100 transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
-      `}>
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+      `}
+      >
         {/* Sidebar Header */}
         <div className="p-6 border-b border-purple-50">
           <Link to="/" className="flex items-center space-x-3">
@@ -92,7 +98,7 @@ const DashboardLayout = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-                StackSphere
+                StackVault
               </h1>
               <p className="text-xs text-gray-500">Dashboard</p>
             </div>
@@ -104,7 +110,10 @@ const DashboardLayout = () => {
           <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border border-purple-100">
             <div className="relative">
               <img
-                src={user?.photoURL || "https://www.w3schools.com/w3images/avatar2.png"}
+                src={
+                  user?.photoURL ||
+                  "https://www.w3schools.com/w3images/avatar2.png"
+                }
                 alt="User Avatar"
                 className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
               />
@@ -116,15 +125,19 @@ const DashboardLayout = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">
-                {user?.displayName || 'User'}
+                {user?.displayName || "User"}
               </p>
               <p className="text-xs text-gray-500 truncate">
-                {isPremium ? '⭐ Premium' : 'Free Account'}
+                {isPremium ? "⭐ Premium" : "Free Account"}
               </p>
               <div className="flex items-center space-x-1 mt-1">
-                <div className={`w-2 h-2 rounded-full ${isPremium ? 'bg-green-400' : 'bg-blue-400'}`}></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    isPremium ? "bg-green-400" : "bg-blue-400"
+                  }`}
+                ></div>
                 <p className="text-xs text-gray-500">
-                  {userProductCount} product{userProductCount !== 1 ? 's' : ''}
+                  {userProductCount} product{userProductCount !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -140,9 +153,10 @@ const DashboardLayout = () => {
               onClick={() => setSidebarOpen(false)}
               className={`
                 flex items-center justify-between px-4 py-3 rounded-2xl font-medium transition-all duration-300 group relative overflow-hidden
-                ${isActive(item.path) 
-                  ? 'bg-gradient-to-r from-purple-500/10 to-violet-500/10 text-purple-600 border border-purple-200' 
-                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                ${
+                  isActive(item.path)
+                    ? "bg-gradient-to-r from-purple-500/10 to-violet-500/10 text-purple-600 border border-purple-200"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }
               `}
             >
@@ -150,7 +164,7 @@ const DashboardLayout = () => {
               {isActive(item.path) && (
                 <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-500 to-violet-500 rounded-r-full"></div>
               )}
-              
+
               <div className="flex items-center space-x-3">
                 <span className="text-xl">{item.icon}</span>
                 <div>
@@ -160,20 +174,23 @@ const DashboardLayout = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Badge for product count */}
               {item.showBadge && item.badge !== undefined && (
-                <span className={`
+                <span
+                  className={`
                   inline-flex items-center justify-center min-w-6 h-6 text-xs font-semibold rounded-full border transition-all duration-300
-                  ${isActive(item.path)
-                    ? 'bg-purple-500 text-white border-purple-500'
-                    : 'bg-gray-100 text-gray-600 border-gray-200 group-hover:bg-purple-100 group-hover:text-purple-600 group-hover:border-purple-200'
+                  ${
+                    isActive(item.path)
+                      ? "bg-purple-500 text-white border-purple-500"
+                      : "bg-gray-100 text-gray-600 border-gray-200 group-hover:bg-purple-100 group-hover:text-purple-600 group-hover:border-purple-200"
                   }
-                `}>
+                `}
+                >
                   {item.badge}
                 </span>
               )}
-              
+
               {/* Hover Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
             </Link>
@@ -187,12 +204,18 @@ const DashboardLayout = () => {
                   <span className="text-white text-sm">🚀</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-orange-800">Upgrade to Premium</p>
-                  <p className="text-xs text-orange-600">Unlock unlimited products</p>
+                  <p className="text-sm font-semibold text-orange-800">
+                    Upgrade to Premium
+                  </p>
+                  <p className="text-xs text-orange-600">
+                    Unlock unlimited products
+                  </p>
                 </div>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-orange-700">Products: {userProductCount}/1</span>
+                <span className="text-orange-700">
+                  Products: {userProductCount}/1
+                </span>
                 <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs">
                   Limited
                 </span>
@@ -207,7 +230,9 @@ const DashboardLayout = () => {
                   <span className="text-white text-sm">⭐</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-green-800">Premium Member</p>
+                  <p className="text-sm font-semibold text-green-800">
+                    Premium Member
+                  </p>
                   <p className="text-xs text-green-600">Unlimited products</p>
                 </div>
               </div>
@@ -237,18 +262,30 @@ const DashboardLayout = () => {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
 
             {/* Page Title */}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {menuItems.find(item => isActive(item.path))?.label || 'Dashboard'}
+                {menuItems.find((item) => isActive(item.path))?.label ||
+                  "Dashboard"}
               </h1>
               <p className="text-sm text-gray-600">
-                {menuItems.find(item => isActive(item.path))?.description || 'Manage your account and products'}
+                {menuItems.find((item) => isActive(item.path))?.description ||
+                  "Manage your account and products"}
               </p>
             </div>
 
@@ -256,10 +293,11 @@ const DashboardLayout = () => {
             <div className="flex items-center space-x-4">
               <div className="text-right hidden sm:block">
                 <p className="font-semibold text-gray-900">
-                  {isPremium ? '⭐ Premium Member' : 'Welcome back!'}
+                  {isPremium ? "⭐ Premium Member" : "Welcome back!"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {userProductCount} product{userProductCount !== 1 ? 's' : ''} submitted
+                  {userProductCount} product{userProductCount !== 1 ? "s" : ""}{" "}
+                  submitted
                 </p>
               </div>
               <div className="relative">
@@ -272,7 +310,7 @@ const DashboardLayout = () => {
                     />
                   ) : (
                     <span className="text-white font-bold text-sm">
-                      {user?.displayName?.charAt(0) || 'U'}
+                      {user?.displayName?.charAt(0) || "U"}
                     </span>
                   )}
                 </div>

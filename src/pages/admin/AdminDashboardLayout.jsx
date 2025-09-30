@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Link, useLocation, Outlet } from 'react-router';
-import { AuthContext } from '../../context/AuthContext';
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useLocation, Outlet } from "react-router";
+import { AuthContext } from "../../context/AuthContext";
 
 const API_BASE = "http://localhost:3000";
 
@@ -12,7 +12,7 @@ const AdminDashboardLayout = () => {
     totalUsers: 0,
     totalProducts: 0,
     totalRevenue: 0,
-    pendingReviews: 0
+    pendingReviews: 0,
   });
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -27,7 +27,9 @@ const AdminDashboardLayout = () => {
   const fetchAdminData = async () => {
     try {
       // Fetch user profile
-      const profileResponse = await fetch(`${API_BASE}/user-profile/${user.email}`);
+      const profileResponse = await fetch(
+        `${API_BASE}/user-profile/${user.email}`
+      );
       if (profileResponse.ok) {
         const profileData = await profileResponse.json();
         setUserProfile(profileData);
@@ -44,7 +46,7 @@ const AdminDashboardLayout = () => {
           totalUsers: 1250,
           totalProducts: 543,
           totalRevenue: 12500,
-          pendingReviews: 23
+          pendingReviews: 23,
         });
       }
     } catch (error) {
@@ -54,7 +56,7 @@ const AdminDashboardLayout = () => {
         totalUsers: 1250,
         totalProducts: 543,
         totalRevenue: 12500,
-        pendingReviews: 23
+        pendingReviews: 23,
       });
     } finally {
       setLoading(false);
@@ -92,17 +94,19 @@ const AdminDashboardLayout = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50/30">
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-xl shadow-2xl shadow-red-500/10 border-r border-red-100 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
-      `}>
+      `}
+      >
         {/* Sidebar Header */}
         <div className="p-6 border-b border-red-50">
           <Link to="/" className="flex items-center space-x-3">
@@ -111,7 +115,7 @@ const AdminDashboardLayout = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
-                StackSphere
+                StackVault
               </h1>
               <p className="text-xs text-gray-500">Admin Dashboard</p>
             </div>
@@ -141,9 +145,7 @@ const AdminDashboardLayout = () => {
               <p className="text-xs text-gray-500 truncate">⚡ Super Admin</p>
               <div className="flex items-center space-x-1 mt-1">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                <p className="text-xs text-gray-500">
-                  Full System Access
-                </p>
+                <p className="text-xs text-gray-500">Full System Access</p>
               </div>
             </div>
           </div>

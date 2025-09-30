@@ -99,7 +99,7 @@ const Navbar = () => {
           >
             <div className="flex items-center space-x-2">
               <div className="relative">
-                <span className="relative z-10">StackSphere</span>
+                <span className="relative z-10">StackVault</span>
                 <div
                   className={`absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-400 blur-sm opacity-50 -z-10 ${
                     isScrolled ? "hidden" : "block"
@@ -168,27 +168,6 @@ const Navbar = () => {
             ) : (
               <>
                 {/* Role Badge */}
-                {userRole && (
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-                      isScrolled
-                        ? userRole === "moderator"
-                          ? "bg-orange-100 text-orange-800 border-orange-200"
-                          : userRole === "admin"
-                          ? "bg-red-100 text-red-800 border-red-200"
-                          : "bg-purple-100 text-purple-800 border-purple-200"
-                        : userRole === "moderator"
-                        ? "bg-orange-500/20 text-orange-200 border-orange-400/30"
-                        : userRole === "admin"
-                        ? "bg-red-500/20 text-red-200 border-red-400/30"
-                        : "bg-white/20 text-white border-white/30"
-                    }`}
-                  >
-                    {userRole === "moderator" && "🛠️ Moderator"}
-                    {userRole === "admin" && "⚡ Admin"}
-                    {userRole === "user" && "👤 User"}
-                  </span>
-                )}
 
                 {/* User Profile Picture with Enhanced Dropdown */}
                 <div className="relative">

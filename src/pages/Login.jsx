@@ -139,7 +139,10 @@ const Login = () => {
                   Log in with your email and password or continue with Google.
                 </p>
 
-                <form onSubmit={handleEmailPasswordLogin} className="mt-6 space-y-4">
+                <form
+                  onSubmit={handleEmailPasswordLogin}
+                  className="mt-6 space-y-4"
+                >
                   {/* Email */}
                   <div>
                     <label
@@ -252,7 +255,7 @@ const Login = () => {
 
                   {/* Register link */}
                   <p className="text-center text-sm text-gray-600">
-                    New to StackSphere?{" "}
+                    New to StackVault?{" "}
                     <Link to="/register">
                       <span className="font-semibold text-violet-600 hover:text-violet-700 underline underline-offset-2">
                         Create an account

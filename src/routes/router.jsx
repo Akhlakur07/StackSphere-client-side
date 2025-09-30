@@ -20,11 +20,13 @@ import ManageUsers from "../pages/admin/ManageUsers";
 import ManageCoupons from "../pages/admin/ManageCoupons";
 import Products from "../pages/Products";
 import ProductDetails from "../pages/ProductDetails";
+import ErrorPage from "../pages/ErrorPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
+    errorElement: <ErrorPage/>,
     children: [
       {
         index: true,
