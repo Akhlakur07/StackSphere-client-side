@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { AuthContext } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router";
+import { AuthContext } from "../../context/AuthContext";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 // import withReactContent from 'sweetalert2-react-content';
 
 // const MySwal = withReactContent(Swal);
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const MyProducts = () => {
   const navigate = useNavigate();
@@ -40,23 +40,27 @@ const MyProducts = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'accepted': 
-        return 'bg-green-100 text-green-800 border border-green-200';
-      case 'pending': 
-        return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-      case 'rejected': 
-        return 'bg-red-100 text-red-800 border border-red-200';
-      default: 
-        return 'bg-gray-100 text-gray-800 border border-gray-200';
+      case "accepted":
+        return "bg-green-100 text-green-800 border border-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+      case "rejected":
+        return "bg-red-100 text-red-800 border border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'accepted': return '✅';
-      case 'pending': return '⏳';
-      case 'rejected': return '❌';
-      default: return '📝';
+      case "accepted":
+        return "✅";
+      case "pending":
+        return "⏳";
+      case "rejected":
+        return "❌";
+      default:
+        return "📝";
     }
   };
 
@@ -66,7 +70,7 @@ const MyProducts = () => {
 
   const showDeleteConfirmation = async (product) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       html: (
         <div className="text-left">
           <p className="text-gray-600 mb-4">You are about to delete:</p>
@@ -80,7 +84,8 @@ const MyProducts = () => {
               <div>
                 <h4 className="font-semibold text-red-800">{product.name}</h4>
                 <p className="text-sm text-red-600">
-                  Status: <span className="capitalize">{product.status}</span> • Votes: {product.votes}
+                  Status: <span className="capitalize">{product.status}</span> •
+                  Votes: {product.votes}
                 </p>
               </div>
             </div>
@@ -90,17 +95,18 @@ const MyProducts = () => {
           </p>
         </div>
       ),
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      background: '#ffffff',
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      background: "#ffffff",
       customClass: {
-        popup: 'rounded-2xl shadow-2xl border border-gray-200',
-        confirmButton: 'px-6 py-3 rounded-xl font-semibold shadow-lg',
-        cancelButton: 'px-6 py-3 rounded-xl font-semibold border border-gray-300'
+        popup: "rounded-2xl shadow-2xl border border-gray-200",
+        confirmButton: "px-6 py-3 rounded-xl font-semibold shadow-lg",
+        cancelButton:
+          "px-6 py-3 rounded-xl font-semibold border border-gray-300",
       },
       buttonsStyling: false,
       reverseButtons: true,
@@ -116,19 +122,19 @@ const MyProducts = () => {
 
     try {
       const response = await fetch(`${API_BASE}/products/${productId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
-        setProducts(prev => prev.filter(p => p._id !== productId));
-        toast.success('Product deleted successfully!');
+        setProducts((prev) => prev.filter((p) => p._id !== productId));
+        toast.success("Product deleted successfully!");
       } else {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete product');
+        throw new Error(error.error || "Failed to delete product");
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error(error.message || 'Failed to delete product');
+      console.error("Error deleting product:", error);
+      toast.error(error.message || "Failed to delete product");
     } finally {
       setDeletingId(null);
     }
@@ -150,7 +156,9 @@ const MyProducts = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">My Products</h2>
-          <p className="text-gray-600">Manage and track your submitted products</p>
+          <p className="text-gray-600">
+            Manage and track your submitted products
+          </p>
         </div>
 
         {products.length === 0 ? (
@@ -158,8 +166,12 @@ const MyProducts = () => {
             <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">📦</span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
-            <p className="text-gray-600 mb-6">Start by submitting your first amazing product!</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Products Yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Start by submitting your first amazing product!
+            </p>
             <Link
               to="/dashboard/add-product"
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-500 text-white font-semibold rounded-2xl shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transform hover:scale-105 transition-all duration-300"
@@ -195,8 +207,8 @@ const MyProducts = () => {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {products.map((product) => (
-                      <tr 
-                        key={product._id} 
+                      <tr
+                        key={product._id}
                         className="hover:bg-gray-50 transition-colors duration-200 group"
                       >
                         <td className="px-6 py-4">
@@ -241,12 +253,19 @@ const MyProducts = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
-                            <span className="text-lg">{getStatusIcon(product.status)}</span>
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(product.status)}`}>
-                              {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                            <span className="text-lg">
+                              {getStatusIcon(product.status)}
+                            </span>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                                product.status
+                              )}`}
+                            >
+                              {product.status.charAt(0).toUpperCase() +
+                                product.status.slice(1)}
                             </span>
                           </div>
-                          {product.status === 'pending' && (
+                          {product.status === "pending" && (
                             <p className="text-xs text-gray-500 mt-1">
                               Under review by moderators
                             </p>
@@ -254,7 +273,9 @@ const MyProducts = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
                           <div className="space-y-1">
-                            <div>{new Date(product.createdAt).toLocaleDateString()}</div>
+                            <div>
+                              {new Date(product.createdAt).toLocaleDateString()}
+                            </div>
                             <div className="text-xs text-gray-400">
                               {new Date(product.createdAt).toLocaleTimeString()}
                             </div>
@@ -267,27 +288,64 @@ const MyProducts = () => {
                               disabled={deletingId === product._id}
                               className="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm"
                             >
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
                               </svg>
                               Update
                             </button>
-                            <button 
+                            <button
                               onClick={() => showDeleteConfirmation(product)}
                               disabled={deletingId === product._id}
                               className="inline-flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm"
                             >
                               {deletingId === product._id ? (
-                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <svg
+                                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
                                 </svg>
                               ) : (
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
                                 </svg>
                               )}
-                              {deletingId === product._id ? 'Deleting...' : 'Delete'}
+                              {deletingId === product._id
+                                ? "Deleting..."
+                                : "Delete"}
                             </button>
                           </div>
                         </td>
@@ -302,31 +360,46 @@ const MyProducts = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 text-center border border-green-200 shadow-sm">
                 <div className="text-3xl font-bold text-green-600">
-                  {products.filter(p => p.status === 'accepted').length}
+                  {products.filter((p) => p.status === "accepted").length}
                 </div>
-                <div className="text-sm font-semibold text-green-700">Accepted</div>
-                <div className="text-xs text-green-600 mt-1">Live on platform</div>
+                <div className="text-sm font-semibold text-green-700">
+                  Accepted
+                </div>
+                <div className="text-xs text-green-600 mt-1">
+                  Live on platform
+                </div>
               </div>
               <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 text-center border border-yellow-200 shadow-sm">
                 <div className="text-3xl font-bold text-yellow-600">
-                  {products.filter(p => p.status === 'pending').length}
+                  {products.filter((p) => p.status === "pending").length}
                 </div>
-                <div className="text-sm font-semibold text-yellow-700">Pending</div>
+                <div className="text-sm font-semibold text-yellow-700">
+                  Pending
+                </div>
                 <div className="text-xs text-yellow-600 mt-1">Under review</div>
               </div>
               <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 text-center border border-red-200 shadow-sm">
                 <div className="text-3xl font-bold text-red-600">
-                  {products.filter(p => p.status === 'rejected').length}
+                  {products.filter((p) => p.status === "rejected").length}
                 </div>
-                <div className="text-sm font-semibold text-red-700">Rejected</div>
+                <div className="text-sm font-semibold text-red-700">
+                  Rejected
+                </div>
                 <div className="text-xs text-red-600 mt-1">Needs changes</div>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 text-center border border-purple-200 shadow-sm">
                 <div className="text-3xl font-bold text-purple-600">
-                  {products.reduce((total, product) => total + product.votes, 0)}
+                  {products.reduce(
+                    (total, product) => total + product.votes,
+                    0
+                  )}
                 </div>
-                <div className="text-sm font-semibold text-purple-700">Total Votes</div>
-                <div className="text-xs text-purple-600 mt-1">Across all products</div>
+                <div className="text-sm font-semibold text-purple-700">
+                  Total Votes
+                </div>
+                <div className="text-xs text-purple-600 mt-1">
+                  Across all products
+                </div>
               </div>
             </div>
           </>

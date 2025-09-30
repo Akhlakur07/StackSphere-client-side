@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const ReportedContents = () => {
   const [reportedProducts, setReportedProducts] = useState([]);

@@ -6,7 +6,7 @@ import MembershipCheckoutForm from "../../components/MembershipCheckoutForm";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const MyProfile = () => {
   const { user } = useContext(AuthContext);
@@ -23,7 +23,9 @@ const MyProfile = () => {
     const fetchUserData = async () => {
       try {
         // Fetch user profile
-        const profileResponse = await fetch(`${API_BASE}/user-profile/${user?.email}`);
+        const profileResponse = await fetch(
+          `${API_BASE}/user-profile/${user?.email}`
+        );
         if (profileResponse.ok) {
           const data = await profileResponse.json();
           setUserProfile(data);
@@ -32,7 +34,9 @@ const MyProfile = () => {
         }
 
         // Fetch user's products
-        const productsResponse = await fetch(`${API_BASE}/products/user/${user?.email}`);
+        const productsResponse = await fetch(
+          `${API_BASE}/products/user/${user?.email}`
+        );
         if (productsResponse.ok) {
           const productsData = await productsResponse.json();
           setUserProducts(productsData);
@@ -67,12 +71,14 @@ const MyProfile = () => {
 
     setCouponLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/coupons/validate/${couponCode.trim()}`);
-      
+      const response = await fetch(
+        `${API_BASE}/coupons/validate/${couponCode.trim()}`
+      );
+
       if (response.ok) {
         const couponData = await response.json();
         setValidatedCoupon(couponData.coupon);
-        
+
         // Calculate discounted amount
         const discount = couponData.coupon.discountAmount;
         const newAmount = Math.max(0, 39.99 - discount);
@@ -119,9 +125,14 @@ const MyProfile = () => {
   const isPremium = membershipStatus === "premium";
 
   // Calculate stats from user products
-  const totalVotes = userProducts.reduce((total, product) => total + product.votes, 0);
-  const acceptedProducts = userProducts.filter(p => p.status === 'accepted').length;
-  const featuredProducts = userProducts.filter(p => p.featured).length;
+  const totalVotes = userProducts.reduce(
+    (total, product) => total + product.votes,
+    0
+  );
+  const acceptedProducts = userProducts.filter(
+    (p) => p.status === "accepted"
+  ).length;
+  const featuredProducts = userProducts.filter((p) => p.featured).length;
 
   return (
     <div className="p-6 sm:p-8">
@@ -177,9 +188,23 @@ const MyProfile = () => {
                     </div>
                     <p className="text-gray-600 text-lg">{user?.email}</p>
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                      <span>Role: <span className="font-medium capitalize">{userProfile?.role || "user"}</span></span>
+                      <span>
+                        Role:{" "}
+                        <span className="font-medium capitalize">
+                          {userProfile?.role || "user"}
+                        </span>
+                      </span>
                       <span>•</span>
-                      <span>Member since: <span className="font-medium">{userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : "Recently"}</span></span>
+                      <span>
+                        Member since:{" "}
+                        <span className="font-medium">
+                          {userProfile?.createdAt
+                            ? new Date(
+                                userProfile.createdAt
+                              ).toLocaleDateString()
+                            : "Recently"}
+                        </span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -187,7 +212,11 @@ const MyProfile = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white rounded-xl border border-gray-200">
                     <p className="text-sm text-gray-600 mb-1">Account Status</p>
-                    <p className={`text-lg font-semibold ${isPremium ? "text-green-600" : "text-purple-600"}`}>
+                    <p
+                      className={`text-lg font-semibold ${
+                        isPremium ? "text-green-600" : "text-purple-600"
+                      }`}
+                    >
                       {isPremium ? "Premium Member" : "Free Account"}
                     </p>
                     {!isPremium && (
@@ -203,7 +232,9 @@ const MyProfile = () => {
                     </p>
                     {!isPremium && (
                       <p className="text-xs text-gray-500 mt-1">
-                        {userProducts.length >= 1 ? "Limit reached" : "1 product allowed"}
+                        {userProducts.length >= 1
+                          ? "Limit reached"
+                          : "1 product allowed"}
                       </p>
                     )}
                   </div>
@@ -225,19 +256,27 @@ const MyProfile = () => {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="text-2xl font-bold text-purple-600">{userProducts.length}</div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {userProducts.length}
+                  </div>
                   <div className="text-sm text-gray-600">Total Products</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="text-2xl font-bold text-green-600">{acceptedProducts}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {acceptedProducts}
+                  </div>
                   <div className="text-sm text-gray-600">Accepted</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {totalVotes}
+                  </div>
                   <div className="text-sm text-gray-600">Total Votes</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="text-2xl font-bold text-yellow-600">{featuredProducts}</div>
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {featuredProducts}
+                  </div>
                   <div className="text-sm text-gray-600">Featured</div>
                 </div>
               </div>
@@ -324,7 +363,7 @@ const MyProfile = () => {
                     >
                       Upgrade to Premium - ${finalAmount.toFixed(2)}
                     </button>
-                    
+
                     {/* Coupon Input */}
                     <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
                       <p className="text-xs text-purple-700 mb-2 font-semibold">
@@ -362,7 +401,7 @@ const MyProfile = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <p className="text-xs text-gray-500">
                       Unlock unlimited submissions and advanced features
                     </p>
@@ -385,7 +424,10 @@ const MyProfile = () => {
                     </div>
                     {userProfile?.membership?.purchasedAt && (
                       <p className="text-xs text-green-600 text-center">
-                        Member since {new Date(userProfile.membership.purchasedAt).toLocaleDateString()}
+                        Member since{" "}
+                        {new Date(
+                          userProfile.membership.purchasedAt
+                        ).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -400,12 +442,14 @@ const MyProfile = () => {
               </h3>
               <div className="space-y-3">
                 <button
-                  onClick={() => window.location.href = '/dashboard/add-product'}
+                  onClick={() =>
+                    (window.location.href = "/dashboard/add-product")
+                  }
                   disabled={!isPremium && userProducts.length >= 1}
                   className={`w-full text-left p-3 rounded-xl border transition-all duration-300 ${
                     !isPremium && userProducts.length >= 1
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600'
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-gray-700 border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
@@ -413,17 +457,18 @@ const MyProfile = () => {
                     <div>
                       <div className="font-semibold">Add New Product</div>
                       <div className="text-xs text-gray-500">
-                        {!isPremium && userProducts.length >= 1 
-                          ? 'Upgrade to add more' 
-                          : 'Submit your next great idea'
-                        }
+                        {!isPremium && userProducts.length >= 1
+                          ? "Upgrade to add more"
+                          : "Submit your next great idea"}
                       </div>
                     </div>
                   </div>
                 </button>
 
                 <button
-                  onClick={() => window.location.href = '/dashboard/my-products'}
+                  onClick={() =>
+                    (window.location.href = "/dashboard/my-products")
+                  }
                   className="w-full text-left p-3 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all duration-300"
                 >
                   <div className="flex items-center space-x-3">
@@ -448,13 +493,25 @@ const MyProfile = () => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Upgrade to Premium</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Upgrade to Premium
+                </h3>
                 <button
                   onClick={() => setShowPaymentModal(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors duration-300"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>

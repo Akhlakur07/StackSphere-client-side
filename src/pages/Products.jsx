@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { toast } from "react-toastify";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const Products = () => {
   const [products, setProducts] = useState([]);

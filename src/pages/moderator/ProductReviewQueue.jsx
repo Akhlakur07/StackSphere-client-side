@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const ProductReviewQueue = () => {
   const [pendingProducts, setPendingProducts] = useState([]);
@@ -19,7 +19,7 @@ const ProductReviewQueue = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch pending products
       const pendingResponse = await fetch(`${API_BASE}/products/pending`);
       if (pendingResponse.ok) {
@@ -28,17 +28,21 @@ const ProductReviewQueue = () => {
       }
 
       // Fetch accepted products (non-featured)
-      const acceptedResponse = await fetch(`${API_BASE}/products/accepted-non-featured`);
+      const acceptedResponse = await fetch(
+        `${API_BASE}/products/accepted-non-featured`
+      );
       if (acceptedResponse.ok) {
         const acceptedData = await acceptedResponse.json();
         setAcceptedProducts(acceptedData);
       } else {
         // Fallback: filter accepted products from all products
-        const allProductsResponse = await fetch(`${API_BASE}/moderator/products`);
+        const allProductsResponse = await fetch(
+          `${API_BASE}/moderator/products`
+        );
         if (allProductsResponse.ok) {
           const allProducts = await allProductsResponse.json();
           const acceptedNonFeatured = allProducts.filter(
-            product => product.status === "accepted" && !product.featured
+            (product) => product.status === "accepted" && !product.featured
           );
           setAcceptedProducts(acceptedNonFeatured);
         }
@@ -81,10 +85,17 @@ const ProductReviewQueue = () => {
 
       if (response.ok) {
         // Remove from pending and add to accepted
-        const acceptedProduct = pendingProducts.find(p => p._id === productId);
-        setPendingProducts(prev => prev.filter(product => product._id !== productId));
+        const acceptedProduct = pendingProducts.find(
+          (p) => p._id === productId
+        );
+        setPendingProducts((prev) =>
+          prev.filter((product) => product._id !== productId)
+        );
         if (acceptedProduct) {
-          setAcceptedProducts(prev => [...prev, { ...acceptedProduct, status: "accepted" }]);
+          setAcceptedProducts((prev) => [
+            ...prev,
+            { ...acceptedProduct, status: "accepted" },
+          ]);
         }
 
         Swal.fire({
@@ -133,7 +144,9 @@ const ProductReviewQueue = () => {
 
       if (response.ok) {
         // Remove from pending
-        setPendingProducts(prev => prev.filter(product => product._id !== productId));
+        setPendingProducts((prev) =>
+          prev.filter((product) => product._id !== productId)
+        );
 
         Swal.fire({
           title: "❌ Rejected!",
@@ -184,7 +197,9 @@ const ProductReviewQueue = () => {
 
       if (response.ok) {
         // Remove from accepted products (since it's now featured)
-        setAcceptedProducts(prev => prev.filter(product => product._id !== productId));
+        setAcceptedProducts((prev) =>
+          prev.filter((product) => product._id !== productId)
+        );
 
         Swal.fire({
           title: "⭐ Featured!",
@@ -302,7 +317,9 @@ const ProductReviewQueue = () => {
               {product.featured !== undefined && (
                 <div>
                   <strong className="text-gray-700">Featured:</strong>
-                  <p className="text-gray-600">{product.featured ? "Yes" : "No"}</p>
+                  <p className="text-gray-600">
+                    {product.featured ? "Yes" : "No"}
+                  </p>
                 </div>
               )}
             </div>
@@ -352,7 +369,7 @@ const ProductReviewQueue = () => {
           alt={product.name}
           className="w-16 h-16 rounded-xl object-cover border border-gray-200 shadow-sm flex-shrink-0"
         />
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
@@ -363,9 +380,13 @@ const ProductReviewQueue = () => {
                 {product.description}
               </p>
             </div>
-            
+
             <div className="flex items-center space-x-2 ml-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(product.status)}`}>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                  product.status
+                )}`}
+              >
                 {product.status === "pending" && "⏳ Pending"}
                 {product.status === "accepted" && "✅ Accepted"}
               </span>
@@ -399,7 +420,10 @@ const ProductReviewQueue = () => {
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <div className="flex items-center space-x-1">
                 <img
-                  src={product.owner?.image || "https://www.w3schools.com/w3images/avatar2.png"}
+                  src={
+                    product.owner?.image ||
+                    "https://www.w3schools.com/w3images/avatar2.png"
+                  }
                   alt={product.owner?.name}
                   className="w-5 h-5 rounded-full"
                 />
@@ -416,9 +440,24 @@ const ProductReviewQueue = () => {
                 onClick={() => showProductDetails(product)}
                 className="inline-flex items-center px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105"
               >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
                 View Details
               </button>
@@ -431,13 +470,38 @@ const ProductReviewQueue = () => {
                     className="inline-flex items-center px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105"
                   >
                     {actionLoading[product._id] === "accept" ? (
-                      <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                     )}
                   </button>
@@ -447,13 +511,38 @@ const ProductReviewQueue = () => {
                     className="inline-flex items-center px-3 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105"
                   >
                     {actionLoading[product._id] === "reject" ? (
-                      <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     )}
                   </button>
@@ -465,13 +554,38 @@ const ProductReviewQueue = () => {
                   className="inline-flex items-center px-3 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105"
                 >
                   {actionLoading[product._id] === "feature" ? (
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                      />
                     </svg>
                   )}
                   {product.featured ? "Featured" : "Make Featured"}
@@ -543,7 +657,11 @@ const ProductReviewQueue = () => {
             ) : (
               <div className="space-y-4">
                 {pendingProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} isPending={true} />
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    isPending={true}
+                  />
                 ))}
               </div>
             )}
@@ -562,7 +680,11 @@ const ProductReviewQueue = () => {
             ) : (
               <div className="space-y-4">
                 {acceptedProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} isPending={false} />
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    isPending={false}
+                  />
                 ))}
               </div>
             )}

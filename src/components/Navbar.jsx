@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);

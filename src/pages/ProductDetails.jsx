@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 const ProductDetails = () => {
   const { id } = useParams();

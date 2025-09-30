@@ -3,10 +3,10 @@ import { AuthContext } from "../../context/AuthContext";
 import { useNavigate, useParams, Link } from "react-router";
 import { toast } from "react-toastify";
 import { WithContext as ReactTags } from "react-tag-input";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 // import withReactContent from 'sweetalert2-react-content';
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://stack-back-omega.vercel.app";
 
 // const MySwal = withReactContent(Swal);
 
