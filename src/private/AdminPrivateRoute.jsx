@@ -34,9 +34,9 @@ const AdminPrivateRoute = ({ children }) => {
 
   if (loading || roleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-red-50/30">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Checking admin permissions...</p>
         </div>
       </div>
@@ -49,7 +49,7 @@ const AdminPrivateRoute = ({ children }) => {
 
   if (user && user?.email) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-red-50/30">
         <div className="text-center">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">🔒</span>
@@ -58,7 +58,7 @@ const AdminPrivateRoute = ({ children }) => {
           <p className="text-gray-600 mb-6">You need administrator privileges to access this page.</p>
           <button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-all duration-300"
+            className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-300"
           >
             Go Back
           </button>

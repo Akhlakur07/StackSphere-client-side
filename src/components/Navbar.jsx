@@ -26,7 +26,9 @@ const Navbar = () => {
     const fetchUserRole = async () => {
       if (user?.email) {
         try {
-          const response = await fetch(`${API_BASE}/user-profile/${user.email}`);
+          const response = await fetch(
+            `${API_BASE}/user-profile/${user.email}`
+          );
           if (response.ok) {
             const userData = await response.json();
             setUserRole(userData.role);
@@ -49,25 +51,25 @@ const Navbar = () => {
 
   const isActiveLink = (path) => location.pathname === path;
 
-  // Get dashboard URL based on user role
   const getDashboardUrl = () => {
-    if (userRole === "moderator" || userRole === "admin") {
+    if (userRole === "admin") {
+      return "/admin";
+    }
+    if (userRole === "moderator") {
       return "/moderator";
     }
     return "/dashboard";
   };
 
-  // Get dashboard label based on user role
   const getDashboardLabel = () => {
-    if (userRole === "moderator") return "Moderator Dashboard";
     if (userRole === "admin") return "Admin Dashboard";
+    if (userRole === "moderator") return "Moderator Dashboard";
     return "Dashboard";
   };
 
-  // Get dashboard icon based on user role
   const getDashboardIcon = () => {
-    if (userRole === "moderator") return "🛠️";
     if (userRole === "admin") return "⚡";
+    if (userRole === "moderator") return "🛠️";
     return "📊";
   };
 
@@ -299,9 +301,12 @@ const Navbar = () => {
                         >
                           <span className="text-lg">{getDashboardIcon()}</span>
                           <div>
-                            <span className="font-medium">{getDashboardLabel()}</span>
+                            <span className="font-medium">
+                              {getDashboardLabel()}
+                            </span>
                             <p className="text-xs text-gray-500">
-                              {userRole === "moderator" && "Manage product reviews"}
+                              {userRole === "moderator" &&
+                                "Manage product reviews"}
                               {userRole === "admin" && "Administrator panel"}
                               {userRole === "user" && "Your products & profile"}
                             </p>
@@ -471,10 +476,12 @@ const Navbar = () => {
                       <p className="font-semibold text-white">
                         {user?.displayName || "User"}
                       </p>
-                      <p className="text-sm text-white/70">{getDashboardLabel()}</p>
+                      <p className="text-sm text-white/70">
+                        {getDashboardLabel()}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <Link
                     to={getDashboardUrl()}
                     onClick={() => setMobileMenuOpen(false)}
@@ -483,7 +490,7 @@ const Navbar = () => {
                     <span className="text-lg">{getDashboardIcon()}</span>
                     <span>Go to {getDashboardLabel()}</span>
                   </Link>
-                  
+
                   <button
                     onClick={logOut}
                     className="w-full px-4 py-3 text-left text-red-300 hover:bg-white/10 rounded-xl transition-all duration-300"

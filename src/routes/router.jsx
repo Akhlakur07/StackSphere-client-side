@@ -13,6 +13,11 @@ import ModeratorPrivateRoute from "../private/ModeratorPrivateRoute";
 import ModeratorDashboardLayout from "../pages/moderator/ModeratorDashboardLayout";
 import ProductReviewQueue from "../pages/moderator/ProductReviewQueue";
 import ReportedContents from "../pages/moderator/ReportedContents";
+import AdminPrivateRoute from "../private/AdminPrivateRoute";
+import AdminDashboardLayout from "../pages/admin/AdminDashboardLayout";
+import StatisticsPage from "../pages/admin/StatisticsPage";
+import ManageUsers from "../pages/admin/ManageUsers";
+import ManageCoupons from "../pages/admin/ManageCoupons";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +83,32 @@ const router = createBrowserRouter([
       {
         path: "reported-contents",
         Component: ReportedContents,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminPrivateRoute>
+        <AdminDashboardLayout />
+      </AdminPrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/admin/statistics" replace />,
+      },
+      {
+        path: "statistics",
+        Component: StatisticsPage,
+      },
+      {
+        path: "manage-users",
+        Component: ManageUsers,
+      },
+      {
+        path: "manage-coupons",
+        Component: ManageCoupons,
       },
     ],
   },
