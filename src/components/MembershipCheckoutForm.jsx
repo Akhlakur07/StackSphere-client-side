@@ -4,11 +4,16 @@ import { toast } from 'react-toastify';
 
 const API_BASE = "http://localhost:3000";
 
-const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
+const MembershipCheckoutForm = ({ user, amount, couponCode, onSuccess, onClose }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
+  // eslint-disable-next-line no-unused-vars
+  const [appliedCoupon, setAppliedCoupon] = useState(couponCode ? {
+    code: couponCode,
+    discountAmount: 9.99 - amount // Calculate discount from the difference
+  } : null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -36,7 +41,8 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           amount: amount,
-          userEmail: user?.email 
+          userEmail: user?.email,
+          couponCode: appliedCoupon?.code // Send coupon code to backend
         })
       });
 
@@ -81,6 +87,9 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
           body: JSON.stringify({
             email: user?.email,
             amount: amount,
+            originalAmount: 9.99, // Store original price
+            discountAmount: appliedCoupon?.discountAmount || 0,
+            couponCode: appliedCoupon?.code,
             transactionId: paymentIntent.id,
             membershipType: 'premium'
           })
@@ -92,6 +101,19 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
 
         const paymentResult = await paymentResponse.json();
         console.log('Payment saved:', paymentResult);
+        
+        // Update coupon usage count if coupon was used
+        if (appliedCoupon?.code) {
+          try {
+            await fetch(`${API_BASE}/coupons/use/${appliedCoupon.code}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+          } catch (couponError) {
+            console.error('Failed to update coupon usage:', couponError);
+            // Don't fail the payment if coupon update fails
+          }
+        }
         
         toast.success('🎉 Payment successful! Your membership has been upgraded to Premium.');
         onSuccess();
@@ -106,6 +128,9 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
       setProcessing(false);
     }
   };
+
+  const originalAmount = 9.99;
+  const discountAmount = appliedCoupon ? originalAmount - amount : 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -126,15 +151,54 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
         {/* Payment Details */}
         <div className="mb-6">
           <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600">Plan</span>
-              <span className="font-semibold text-purple-600">Premium Membership</span>
+            {/* Applied Coupon Display */}
+            {appliedCoupon && (
+              <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-green-600">🎫</span>
+                    <span className="text-sm font-semibold text-green-800">{appliedCoupon.code}</span>
+                  </div>
+                  <span className="text-sm font-bold text-green-600">
+                    -${discountAmount.toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-xs text-green-600 mt-1">Coupon applied successfully!</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Plan</span>
+                <span className="font-semibold text-purple-600">Premium Membership</span>
+              </div>
+              
+              {/* Original Price with Strikethrough if discounted */}
+              {appliedCoupon && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Original Price</span>
+                  <span className="text-gray-400 line-through">${originalAmount.toFixed(2)}</span>
+                </div>
+              )}
+              
+              {/* Discount Line */}
+              {appliedCoupon && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Discount</span>
+                  <span className="font-semibold text-green-600">
+                    -${discountAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Final Amount */}
+              <div className="flex items-center justify-between pt-2 border-t border-purple-200">
+                <span className="text-gray-600 font-semibold">Total Amount</span>
+                <span className="text-2xl font-bold text-gray-900">${amount.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Amount</span>
-              <span className="text-2xl font-bold text-gray-900">${amount}</span>
-            </div>
-            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+            
+            <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-xs text-green-700 text-center">
                 💳 <strong>Secure Payment</strong> - Powered by Stripe
               </p>
@@ -222,7 +286,7 @@ const MembershipCheckoutForm = ({ user, amount, onSuccess, onClose }) => {
                 Processing Payment...
               </div>
             ) : (
-              `Pay $${amount}`
+              `Pay $${amount.toFixed(2)}`
             )}
           </button>
 

@@ -18,6 +18,8 @@ import AdminDashboardLayout from "../pages/admin/AdminDashboardLayout";
 import StatisticsPage from "../pages/admin/StatisticsPage";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageCoupons from "../pages/admin/ManageCoupons";
+import Products from "../pages/Products";
+import ProductDetails from "../pages/ProductDetails";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,18 @@ const router = createBrowserRouter([
       {
         path: "/login",
         Component: Login,
+      },
+      {
+        path: "/products",
+        Component: Products,
+      },
+      {
+        path: "/product/:id",
+        element: (
+          <UserPrivateRoute>
+            <ProductDetails />
+          </UserPrivateRoute>
+        ),
       },
     ],
   },

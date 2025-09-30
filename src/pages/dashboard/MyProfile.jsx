@@ -6,7 +6,6 @@ import MembershipCheckoutForm from "../../components/MembershipCheckoutForm";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-
 const API_BASE = "http://localhost:3000";
 
 const MyProfile = () => {
@@ -15,6 +14,10 @@ const MyProfile = () => {
   const [userProducts, setUserProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [validatedCoupon, setValidatedCoupon] = useState(null);
+  const [finalAmount, setFinalAmount] = useState(39.99);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -49,80 +52,57 @@ const MyProfile = () => {
 
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
+    setCouponCode("");
+    setValidatedCoupon(null);
+    setFinalAmount(39.99);
     // Refresh user data to show updated membership status
     window.location.reload();
   };
 
-  const showUpgradeBenefits = () => {
-    Swal.fire({
-      title: '🚀 Upgrade to Premium',
-      html: (
-        <div className="text-left">
-          <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 mb-4 border border-purple-200">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center">
-                <span className="text-2xl text-white">⭐</span>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Unlock Premium Features</h3>
-                <p className="text-gray-600">Get unlimited access for just $9.99/month</p>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Product Submissions</span>
-                <span className="font-semibold text-green-600">Unlimited</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Voting Power</span>
-                <span className="font-semibold text-green-600">Enhanced</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Advanced Analytics</span>
-                <span className="text-green-500">✅</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Featured Placement</span>
-                <span className="text-green-500">✅</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Priority Support</span>
-                <span className="text-green-500">✅</span>
-              </div>
-            </div>
-          </div>
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-            <h4 className="font-semibold text-yellow-800 mb-2">💡 Why Upgrade?</h4>
-            <ul className="text-sm text-yellow-700 space-y-1">
-              <li>• Reach more users with unlimited product submissions</li>
-              <li>• Get better visibility with enhanced voting power</li>
-              <li>• Track performance with detailed analytics</li>
-              <li>• Stand out with featured placement opportunities</li>
-            </ul>
-          </div>
-        </div>
-      ),
-      icon: 'info',
-      showCancelButton: true,
-      confirmButtonText: 'Upgrade Now - $9.99',
-      cancelButtonText: 'Maybe Later',
-      confirmButtonColor: '#8b5cf6',
-      cancelButtonColor: '#6b7280',
-      background: '#ffffff',
-      customClass: {
-        popup: 'rounded-2xl shadow-2xl border border-purple-200',
-        confirmButton: 'px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300',
-        cancelButton: 'px-6 py-3 rounded-xl font-semibold border border-gray-300 hover:bg-gray-50 transition-all duration-300'
-      },
-      buttonsStyling: false,
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setShowPaymentModal(true);
+    setCouponLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/coupons/validate/${couponCode.trim()}`);
+      
+      if (response.ok) {
+        const couponData = await response.json();
+        setValidatedCoupon(couponData.coupon);
+        
+        // Calculate discounted amount
+        const discount = couponData.coupon.discountAmount;
+        const newAmount = Math.max(0, 39.99 - discount);
+        setFinalAmount(newAmount);
+
+        toast.success(`🎉 Coupon applied! $${discount.toFixed(2)} discount`);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Invalid coupon code");
       }
-    });
+    } catch (error) {
+      console.error("Coupon validation error:", error);
+      setValidatedCoupon(null);
+      setFinalAmount(39.99);
+      toast.error(error.message || "Failed to apply coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponCode("");
+    setValidatedCoupon(null);
+    setFinalAmount(39.99);
+    toast.info("Coupon removed");
+  };
+
+  // Directly show payment modal when upgrade is clicked
+  const handleUpgradeClick = () => {
+    setShowPaymentModal(true);
   };
 
   if (loading) {
@@ -339,11 +319,50 @@ const MyProfile = () => {
                 {!isPremium ? (
                   <div className="space-y-3">
                     <button
-                      onClick={showUpgradeBenefits}
+                      onClick={handleUpgradeClick} // Directly show payment modal
                       className="w-full bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg shadow-purple-500/25 transform hover:scale-105 transition-all duration-300"
                     >
-                      Upgrade to Premium - $9.99
+                      Upgrade to Premium - ${finalAmount.toFixed(2)}
                     </button>
+                    
+                    {/* Coupon Input */}
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
+                      <p className="text-xs text-purple-700 mb-2 font-semibold">
+                        🎫 Have a coupon code?
+                      </p>
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          placeholder="Enter coupon"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          disabled={couponLoading || validatedCoupon}
+                          className="flex-1 rounded-lg border border-purple-300 px-3 py-1 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-200 outline-none disabled:bg-gray-100"
+                        />
+                        {validatedCoupon ? (
+                          <button
+                            onClick={removeCoupon}
+                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition-all duration-300"
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          <button
+                            onClick={validateCoupon}
+                            disabled={couponLoading || !couponCode.trim()}
+                            className="px-3 py-1 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white text-xs font-semibold rounded-lg transition-all duration-300"
+                          >
+                            {couponLoading ? "..." : "Apply"}
+                          </button>
+                        )}
+                      </div>
+                      {validatedCoupon && (
+                        <p className="text-green-600 text-xs mt-2 font-semibold">
+                          ✅ {validatedCoupon.description}
+                        </p>
+                      )}
+                    </div>
+                    
                     <p className="text-xs text-gray-500">
                       Unlock unlimited submissions and advanced features
                     </p>
@@ -442,7 +461,8 @@ const MyProfile = () => {
               <Elements stripe={stripePromise}>
                 <MembershipCheckoutForm
                   user={user}
-                  amount={9.99}
+                  amount={finalAmount}
+                  couponCode={validatedCoupon?.code}
                   onSuccess={handlePaymentSuccess}
                   onClose={() => setShowPaymentModal(false)}
                 />
