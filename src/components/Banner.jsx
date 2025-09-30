@@ -74,7 +74,7 @@ const Banner = () => {
     };
 
     return (
-        <div className="relative h-[85vh] overflow-hidden">
+        <div className="relative h-[100vh] overflow-hidden">
             {/* Slides */}
             {slides.map((slide, index) => (
                 <div
