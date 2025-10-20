@@ -92,7 +92,7 @@ const ModeratorDashboardLayout = () => {
       `}
       >
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-blue-50">
+        <div className="p-5 border-b border-blue-50">
           <Link to="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">M</span>
