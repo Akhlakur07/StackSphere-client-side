@@ -6,7 +6,6 @@ const API_BASE = "https://stack-back-omega.vercel.app";
 
 const AdminDashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [userProfile, setUserProfile] = useState(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -26,6 +25,8 @@ const AdminDashboardLayout = () => {
 
   const fetchAdminData = async () => {
     try {
+      setLoading(true);
+      
       // Fetch user profile
       const profileResponse = await fetch(
         `${API_BASE}/user-profile/${user.email}`
@@ -35,31 +36,72 @@ const AdminDashboardLayout = () => {
         setUserProfile(profileData);
       }
 
-      // Fetch admin stats (you'll implement these endpoints later)
-      const statsResponse = await fetch(`${API_BASE}/admin/stats`);
+      // Fetch admin stats from the actual endpoint
+      const statsResponse = await fetch(`${API_BASE}/admin/statistics`);
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
-        setStats(statsData);
-      } else {
-        // Fallback dummy stats for now
         setStats({
-          totalUsers: 1250,
-          totalProducts: 543,
-          totalRevenue: 12500,
-          pendingReviews: 23,
+          totalUsers: statsData.users?.total || 0,
+          totalProducts: statsData.products?.total || 0,
+          totalRevenue: statsData.revenue?.total || 0,
+          pendingReviews: statsData.products?.pending || 0,
         });
+      } else {
+        console.error("Failed to fetch admin stats");
+        // Fallback to fetching individual data if stats endpoint fails
+        await fetchIndividualStats();
       }
     } catch (error) {
       console.error("Error fetching admin data:", error);
-      // Set fallback dummy stats
-      setStats({
-        totalUsers: 1250,
-        totalProducts: 543,
-        totalRevenue: 12500,
-        pendingReviews: 23,
-      });
+      // Fallback to individual stats fetch
+      await fetchIndividualStats();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchIndividualStats = async () => {
+    try {
+      // Fetch total users
+      const usersResponse = await fetch(`${API_BASE}/admin/users`);
+      if (usersResponse.ok) {
+        const usersData = await usersResponse.json();
+        setStats(prev => ({ ...prev, totalUsers: usersData.length }));
+      }
+
+      // Fetch total products
+      const productsResponse = await fetch(`${API_BASE}/products`);
+      if (productsResponse.ok) {
+        const productsData = await productsResponse.json();
+        setStats(prev => ({ 
+          ...prev, 
+          totalProducts: productsData.totalProducts || productsData.length || 0 
+        }));
+      }
+
+      // Fetch pending products count
+      const pendingResponse = await fetch(`${API_BASE}/products/pending/count`);
+      if (pendingResponse.ok) {
+        const pendingData = await pendingResponse.json();
+        setStats(prev => ({ ...prev, pendingReviews: pendingData.count || 0 }));
+      }
+
+      // Fetch total revenue from payments
+      const paymentsResponse = await fetch(`${API_BASE}/payments`);
+      if (paymentsResponse.ok) {
+        const paymentsData = await paymentsResponse.json();
+        const totalRevenue = paymentsData.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+        setStats(prev => ({ ...prev, totalRevenue }));
+      }
+    } catch (error) {
+      console.error("Error fetching individual stats:", error);
+      // Set fallback dummy stats as last resort
+      setStats({
+        totalUsers: 0,
+        totalProducts: 0,
+        totalRevenue: 0,
+        pendingReviews: 0,
+      });
     }
   };
 
@@ -108,7 +150,7 @@ const AdminDashboardLayout = () => {
       `}
       >
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-red-50">
+        <div className="p-5 border-b border-red-50">
           <Link to="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">A</span>
@@ -129,6 +171,7 @@ const AdminDashboardLayout = () => {
               <img
                 src={
                   user?.photoURL ||
+                  userProfile?.photo ||
                   "https://www.w3schools.com/w3images/avatar2.png"
                 }
                 alt="Admin Avatar"
@@ -140,7 +183,7 @@ const AdminDashboardLayout = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">
-                {user?.displayName || "Administrator"}
+                {user?.displayName || userProfile?.name || "Administrator"}
               </p>
               <p className="text-xs text-gray-500 truncate">⚡ Super Admin</p>
               <div className="flex items-center space-x-1 mt-1">
@@ -212,19 +255,25 @@ const AdminDashboardLayout = () => {
               <div className="flex items-center justify-between">
                 <span className="text-purple-700">Total Users</span>
                 <span className="font-semibold bg-purple-500 text-white px-2 py-1 rounded-full">
-                  {stats.totalUsers.toLocaleString()}
+                  {loading ? "..." : stats.totalUsers.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-purple-700">Total Products</span>
                 <span className="font-semibold bg-blue-500 text-white px-2 py-1 rounded-full">
-                  {stats.totalProducts}
+                  {loading ? "..." : stats.totalProducts.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-purple-700">Revenue</span>
                 <span className="font-semibold bg-green-500 text-white px-2 py-1 rounded-full">
-                  ${stats.totalRevenue.toLocaleString()}
+                  {loading ? "..." : `$${stats.totalRevenue.toLocaleString()}`}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-purple-700">Pending Reviews</span>
+                <span className="font-semibold bg-yellow-500 text-white px-2 py-1 rounded-full">
+                  {loading ? "..." : stats.pendingReviews.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -292,15 +341,15 @@ const AdminDashboardLayout = () => {
               </div>
               <div className="relative">
                 <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                  {user?.photoURL ? (
+                  {user?.photoURL || userProfile?.photo ? (
                     <img
-                      src={user.photoURL}
+                      src={user?.photoURL || userProfile?.photo}
                       alt="Admin Avatar"
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
                     <span className="text-white font-bold text-sm">
-                      {user?.displayName?.charAt(0) || "A"}
+                      {user?.displayName?.charAt(0) || userProfile?.name?.charAt(0) || "A"}
                     </span>
                   )}
                 </div>
